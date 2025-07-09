@@ -1,0 +1,9 @@
+if suhu rendah && detak lambat then rr rendah
+if suhu rendah && detak normal then rr rendah
+if suhu rendah && detak cepat then rr normal
+if suhu normal && detak lambat then rr rendah
+if suhu normal && detak normal then rr normal
+if suhu normal && detak cepat then rr cepat
+if suhu tinggi && detak lambat then rr normal
+if suhu tinggi && detak normal then rr cepat
+if suhu tinggi && detak cepat then rr cepat

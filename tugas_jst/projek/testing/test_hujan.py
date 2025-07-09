@@ -1,0 +1,722 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv("../dataset/data_hujan.csv")
+df_array = df.to_numpy()
+
+min_val = np.min(df_array, 0)
+max_val = np.max(df_array, 0)
+
+df_norm = np.empty([12, 9])
+for i in range(12):
+    for j in range(9):
+        df_norm[i][j] = (0.8 * (df_array[i][j] - min_val[j]) / (max_val[j] - min_val[j])) + 0.1
+
+target = df_norm[:, 8]
+
+output_hid = np.empty([6])
+
+output = np.empty([12])
+error = np.empty([12])
+err_tol = 0.1
+
+fig, axs = plt.subplots(3, 4)
+
+# Bobot random, epoch max
+# weight_w = [-4.74819599, 0.98053885, -2.79944548, 1.27689327, -1.14059348, 4.67779393, 3.25816066]
+# weight_v = [
+#     [ 1.4306785 , -0.36785731,  4.36724196,  0.25459546, -1.27152196, -4.47500213],
+#     [ 1.68125912, -0.01975304, -0.13257407,  0.08594549,  2.46024116,  1.3302206 ],
+#     [ 0.52489139, -0.97706111, -2.87455473,  0.01025709,  2.56228253,  2.57642619],
+#     [-1.8963622 , -0.57212728,  2.64073536,  0.4005749 ,  0.25546773,  4.17898026],
+#     [-2.1995867 , -0.10237901, -2.44254746, -1.24079179, -0.47201418, -0.77286639],
+#     [ 2.56195555, -0.00656057, -2.61249676, -0.16557173,  1.22907054, -4.62823979],
+#     [-2.71069265, -0.05742789, -1.4697366 , -0.52179475,  1.56442531,  1.19530678],
+#     [-0.05508266, -0.04643546, -0.84400296,  0.09881075,  2.52232453,  4.30631162],
+#     [-4.02074432, -0.37551556, -0.28950919, -0.84364097, -0.68246314, -2.56861667]
+# ]
+#
+# for i in range(12):
+#     for j in range(6):
+#         jlh = 0
+#         for k in range(8):
+#             jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+#         net = weight_v[0][j] + jlh
+#         output_hid[j] = 1 / (1 + np.exp(-net))
+#
+#     jlh = 0
+#     for j in range(6):
+#         jlh = jlh + (output_hid[j] * weight_w[j+1])
+#     net = weight_w[0] + jlh
+#     output[i] = 1 / (1 + np.exp(-net))
+#
+#     error[i] = target[i] - output[i]
+#
+# print("Hasil Training dengan Data Random")
+# print(pd.DataFrame({
+#     "Output" : output,
+#     "Target" : target,
+#     "Error" : output - target
+# }))
+# print(f"Mean Square Error = {np.mean(error ** 2)}")
+
+# axs[0, 0].plot(target, color="Red", label="Target"),
+# axs[0, 0].plot(output, color="Blue", label="Output"),
+# axs[0, 0].set_title("Data Random")
+# axs[0, 0].label_outer()
+# axs[0, 0].legend()
+
+# Bobot random + momentum, epoch max
+# weight_w = [-4.04918501, 1.42288733, -2.39737942, 1.26290378, -2.02621035, 4.70971122, 2.78707219]
+# weight_v = [
+#     [-0.59396261, -0.63916815,  3.03687259,  0.18662101, -1.50123861, -6.17439383],
+#     [ 2.52826996,  1.61383871,  1.92179752, -0.29935337,  2.97604906,  1.20671088],
+#     [ 1.30898098, -1.0139359 , -2.47305373, -0.31695407,  2.5381751 ,  1.42671531],
+#     [-1.3219513 , -1.16247595,  1.5653589 ,  0.0909663 , -0.04296361,  5.66130356],
+#     [-3.19597194, -0.34798014, -4.30344787, -1.51314196, -0.8803698 , -0.73605287],
+#     [ 0.39822641,  0.94583387, -1.88266597,  0.21716868,  1.54717639, -2.00059485],
+#     [-0.9397918 ,  0.70264502, -1.29875457, -0.79393507,  1.46939314,  1.84766428],
+#     [ 0.78670854,  0.90801946,  0.97176179,  0.16303888,  3.67633009,  3.98501788],
+#     [-1.5319323 ,  0.11606724,  0.12960306, -1.05413762, -0.90490136, -2.06205367]
+# ]
+#
+# for i in range(12):
+#     for j in range(6):
+#         jlh = 0
+#         for k in range(8):
+#             jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+#         net = weight_v[0][j] + jlh
+#         output_hid[j] = 1 / (1 + np.exp(-net))
+#
+#     jlh = 0
+#     for j in range(6):
+#         jlh = jlh + (output_hid[j] * weight_w[j+1])
+#     net = weight_w[0] + jlh
+#     output[i] = 1 / (1 + np.exp(-net))
+#
+#     error[i] = target[i] - output[i]
+#
+# print("\nHasil Training dengan Data Random + Momentum")
+# print(pd.DataFrame({
+#     "Output" : output,
+#     "Target" : target,
+#     "Error" : output - target
+# }))
+# print(f"Mean Square Error = {np.mean(error ** 2)}")
+
+# axs[0, 1].plot(target, color="Red", label="Target"),
+# axs[0, 1].plot(output, color="Blue", label="Output"),
+# axs[0, 1].set_title("Data Random + Momentum")
+# axs[0, 1].label_outer()
+# axs[0, 1].legend()
+
+# Bobot random + momentum + nguyen, epoch max
+# weight_w = [-4.03582963, 1.55348898, -2.20178175, 1.31464124, -1.97304086, 4.85815473, 2.90245969]
+# weight_v = [
+#     [-0.7003473 , -0.78387229,  3.21064036,  0.65792139, -1.48984714, -6.17996183],
+#     [ 2.62917208,  1.95354258,  1.40656148, -0.32152775,  2.92029663,  1.37435838],
+#     [ 1.37773667, -0.70698936, -2.10722867, -0.40900466,  2.65070948,  1.38394236],
+#     [-1.16577907, -1.36839246,  1.56350404,  0.11705475, -0.13903773,  5.57794218],
+#     [-2.98618239, -0.31876292, -4.31907832, -1.50898369, -0.80167532, -0.26783977],
+#     [ 0.30760996,  1.18881073, -2.00867369,  0.06991503,  1.48143376, -2.57746143],
+#     [-0.69861978,  0.89595206, -1.57202249, -0.82218169,  1.6097469 ,  1.98044257],
+#     [ 0.41888491,  1.07691484,  0.49917325,  0.08613224,  3.64634299,  3.97784462],
+#     [-1.58345928, -0.08126964, -0.18017534, -1.05109352, -1.01640807, -2.27430109]
+# ]
+#
+# for i in range(12):
+#     for j in range(6):
+#         jlh = 0
+#         for k in range(8):
+#             jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+#         net = weight_v[0][j] + jlh
+#         output_hid[j] = 1 / (1 + np.exp(-net))
+#
+#     jlh = 0
+#     for j in range(6):
+#         jlh = jlh + (output_hid[j] * weight_w[j+1])
+#     net = weight_w[0] + jlh
+#     output[i] = 1 / (1 + np.exp(-net))
+#
+#     error[i] = target[i] - output[i]
+#
+# print("\nHasil Training dengan Data Random + Momentum + Nguyen")
+# print(pd.DataFrame({
+#     "Output" : output,
+#     "Target" : target,
+#     "Error" : output - target
+# }))
+# print(f"Mean Square Error = {np.mean(error ** 2)}")
+
+# axs[0, 2].plot(target, color="Red", label="Target"),
+# axs[0, 2].plot(output, color="Blue", label="Output"),
+# axs[0, 2].set_title("Data Random + Momentum + Nguyen")
+# axs[0, 2].label_outer()
+# axs[0, 2].legend()
+
+# Bobot random, mse 0.1
+weight_w = [ 0.37844161, 0.06287009, -0.25437785, -0.21100204, -0.32974307, 0.28745743, -0.02317832]
+weight_v = [
+    [-0.17181427,  0.13773221, -0.01378275,  0.22203567,  0.07630986, -0.00276066],
+    [-0.12407717,  0.23202804, -0.33842815, -0.43863916,  0.10724182, -0.47780716],
+    [ 0.33476397, -0.3180992 , -0.1881776 , -0.06319226,  0.12046017, -0.2055214 ],
+    [-0.04169886, -0.30020987,  0.10154004,  0.11322909, -0.42502409,  0.46806676],
+    [-0.19416646,  0.18425873, -0.37261971, -0.46264408, -0.23543771, -0.18675203],
+    [ 0.04822471,  0.46965544,  0.44606563,  0.10197842, -0.40435891, -0.45305222],
+    [-0.11031818,  0.32879711, -0.21227979, -0.3551507 , -0.41841945,  0.27375774],
+    [-0.49335469,  0.20693836,  0.27902989, -0.13694391,  0.3711252 , -0.16743679],
+    [-0.18784821,  0.22962515,  0.39227464, -0.37763636,  0.26627356,  0.27245078]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random, mse <= 0.1")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[0, 0].plot(target, color="Red", label="Target"),
+axs[0, 0].plot(output, color="Blue", label="Output"),
+# axs[0, 0].set_title("Random, MSE <= 0.1")
+axs[0, 0].label_outer()
+axs[0, 0].legend()
+
+# Bobot random, mse 0.01
+weight_w = [ 0.37844161, 0.06287009, -0.25437785, -0.21100204, -0.32974307, 0.28745743, -0.02317832]
+weight_v = [
+    [-0.17181427,  0.13773221, -0.01378275,  0.22203567,  0.07630986, -0.00276066],
+    [-0.12407717,  0.23202804, -0.33842815, -0.43863916,  0.10724182, -0.47780716],
+    [ 0.33476397, -0.3180992 , -0.1881776 , -0.06319226,  0.12046017, -0.2055214 ],
+    [-0.04169886, -0.30020987,  0.10154004,  0.11322909, -0.42502409,  0.46806676],
+    [-0.19416646,  0.18425873, -0.37261971, -0.46264408, -0.23543771, -0.18675203],
+    [ 0.04822471,  0.46965544,  0.44606563,  0.10197842, -0.40435891, -0.45305222],
+    [-0.11031818,  0.32879711, -0.21227979, -0.3551507 , -0.41841945,  0.27375774],
+    [-0.49335469,  0.20693836,  0.27902989, -0.13694391,  0.3711252 , -0.16743679],
+    [-0.18784821,  0.22962515,  0.39227464, -0.37763636,  0.26627356,  0.27245078]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random, mse <= 0.01")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[0, 1].plot(target, color="Red", label="Target"),
+axs[0, 1].plot(output, color="Blue", label="Output"),
+# axs[0, 1].set_title("Random, MSE <= 0.01")
+axs[0, 1].label_outer()
+axs[0, 1].legend()
+
+# Bobot random, mse 0.001
+weight_w = [-0.60784323, -0.0719863, -0.55581693, -0.73324185, -1.35839999, 2.73650502, 1.15960092]
+weight_v = [
+     [-4.47525222e-01, 1.49460170e-01 , -2.77685597e-03, 2.94053204e-01 , -1.15840444e+00, -1.94086665e+00],
+     [-3.86261845e-02, 2.37100044e-01 , -3.09433874e-01, -3.13907226e-01, 8.03577031e-01 , -1.27000515e-01],
+     [5.87657336e-01 , -3.09656721e-01, -1.31521762e-01, 1.90937017e-01 , 1.75164420e+00 , 1.17395460e+00 ],
+     [8.91447970e-02 , -2.88373519e-01, 1.90916761e-01 , 5.00731104e-01 , 7.41808402e-01 , 2.98568162e+00 ],
+     [-2.19813000e-01, 1.87857935e-01 , -3.77156771e-01, -4.68421320e-01, -4.95536876e-01, -1.20231389e+00],
+     [1.30800059e-01 , 4.75427895e-01 , 4.66073437e-01 , 2.02120116e-01 , 3.48874569e-01 , -4.32714429e-01],
+     [-1.28106815e-02, 3.35660514e-01 , -1.74996189e-01, -1.81979930e-01, 6.82919008e-01 , 1.03090232e+00 ],
+     [-3.62861953e-01, 2.14439078e-01 , 3.29061265e-01 , 7.83824655e-02 , 1.60364798e+00 , 1.08104152e+00 ],
+     [-3.31431743e-01, 2.32807212e-01 , 3.77696000e-01 , -4.23086247e-01, -6.46378387e-01, -1.34809911e+00]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random, mse <= 0.001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[0, 2].plot(target, color="Red", label="Target"),
+axs[0, 2].plot(output, color="Blue", label="Output"),
+# axs[0, 2].set_title("Random, MSE <= 0.001")
+axs[0, 2].label_outer()
+axs[0, 2].legend()
+
+# Bobot random, mse 0.0001
+weight_w = [-2.3224317, 1.08720368, -2.23601176, -0.44016086, -0.68535667, 3.78187017, 2.87604065]
+weight_v = [
+     [ 0.46371899,  0.11665388,  0.79093343,  0.42670046, -1.34155261, -2.64682539],
+     [ 1.60656448,  0.29148572,  1.04366289,  0.16018566,  2.1323568 ,  1.87037844],
+     [ 0.96473601, -0.40268459, -0.12720775,  0.10206858,  2.25723577,  1.38003885],
+     [-0.3822867 , -0.29509261, -0.07872972,  0.49694421,  0.34815704,  4.15606617],
+     [-2.15155349,  0.04440225, -2.08832975, -1.27803811, -0.79525588, -1.82244182],
+     [-0.40396207,  0.37440382, -0.34174162, -0.29758251,  0.68701017, -4.51129036],
+     [-0.57683913,  0.27964833, -0.67595153, -0.40499771,  1.32634452,  1.5154179 ],
+     [-1.19455632,  0.11441644, -0.36908427, -0.08605371,  2.16185332,  2.74342573],
+     [-1.38253439,  0.14275132, -0.48975101, -0.80604806, -0.77890144, -2.25208684]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random, mse <= 0.0001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[0, 3].plot(target, color="Red", label="Target"),
+axs[0, 3].plot(output, color="Blue", label="Output"),
+# axs[0, 3].set_title("Random, MSE <= 0.0001")
+axs[0, 3].label_outer()
+axs[0, 3].legend()
+
+# Bobot random + momentum, mse 0.1
+weight_w =  [0.80168557, 0.06858181, -0.40630447, -0.37747843, -0.69186677, 0.5711639, -0.04495273]
+weight_v = [
+     [-0.32922428,  0.2760147 ,  0.04719382,  0.48373647, 0.23347314,  0.01370671],
+     [-0.24146546,  0.46412797, -0.65036028, -0.86591032, 0.24529272, -0.94683085],
+     [ 0.67951226, -0.6359439 , -0.34675897, -0.11098648, 0.27643815, -0.40107482],
+     [-0.07429818, -0.60004442,  0.24225769,  0.24596872,-0.80645691,  0.9478395 ],
+     [-0.38217796,  0.36859759, -0.71630256, -0.91418956,-0.43785577, -0.3637932 ],
+     [ 0.1035787 ,  0.93939739,  0.92140854,  0.21842831,-0.77536155, -0.89722182],
+     [-0.21515068,  0.65769787, -0.39123446, -0.69638813,-0.80058731,  0.55724992],
+     [-0.9807426 ,  0.4140585 ,  0.59569799, -0.25713551, 0.78298157, -0.32432331],
+     [-0.36972589,  0.45930885,  0.81294854, -0.7445573 , 0.56500161,  0.55437471]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random + Momentum, mse <= 0.1")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[1, 0].plot(target, color="Red", label="Target"),
+axs[1, 0].plot(output, color="Blue", label="Output"),
+# axs[1, 0].set_title("Random + Mom, MSE <= 0.1")
+axs[1, 0].label_outer()
+axs[1, 0].legend()
+
+# Bobot random + momentum, mse 0.01
+weight_w =  [0.80168557, 0.06858181, -0.40630447, -0.37747843, -0.69186677, 0.5711639, -0.04495273]
+weight_v = [
+     [-0.32922428,  0.2760147 ,  0.04719382,  0.48373647, 0.23347314,  0.01370671],
+     [-0.24146546,  0.46412797, -0.65036028, -0.86591032, 0.24529272, -0.94683085],
+     [ 0.67951226, -0.6359439 , -0.34675897, -0.11098648, 0.27643815, -0.40107482],
+     [-0.07429818, -0.60004442,  0.24225769,  0.24596872,-0.80645691,  0.9478395 ],
+     [-0.38217796,  0.36859759, -0.71630256, -0.91418956,-0.43785577, -0.3637932 ],
+     [ 0.1035787 ,  0.93939739,  0.92140854,  0.21842831,-0.77536155, -0.89722182],
+     [-0.21515068,  0.65769787, -0.39123446, -0.69638813,-0.80058731,  0.55724992],
+     [-0.9807426 ,  0.4140585 ,  0.59569799, -0.25713551, 0.78298157, -0.32432331],
+     [-0.36972589,  0.45930885,  0.81294854, -0.7445573 , 0.56500161,  0.55437471]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random + Momentum, mse <= 0.01")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[1, 1].plot(target, color="Red", label="Target"),
+axs[1, 1].plot(output, color="Blue", label="Output"),
+# axs[1, 1].set_title("Random + Mom, MSE <= 0.01")
+axs[1, 1].label_outer()
+axs[1, 1].legend()
+
+# Bobot random + momentum, mse 0.001
+weight_w = [-0.35373736, 0.55216087, -1.21603451, -0.39735802, -1.45266151, 2.68870415, 1.0999797 ]
+weight_v = [
+     [-1.06376908,  0.21241876,  0.14845035,  0.71190706, -1.20198874, -1.93835076],
+     [-0.18443348,  0.4928863 , -0.49648269, -0.75955409,  0.87578014, -0.74287185],
+     [ 1.14459713, -0.55817106, -0.06160259,  0.09788854,  2.13687968,  0.89057027],
+     [-0.00712159, -0.51928339,  0.79125926,  0.53834703,  0.66175079,  3.50314194],
+     [-0.55758847,  0.32768647, -0.80952517, -0.88393712, -0.88353446, -1.29345047],
+     [ 0.22750754,  0.97434782,  1.057497  ,  0.34844468,  0.23519958, -0.69239411],
+     [-0.15511497,  0.69053381, -0.16138736, -0.54698357,  0.63501227,  1.45421105],
+     [-0.88324768,  0.45540086,  0.85894287, -0.09634733,  2.26600781,  0.90809485],
+     [-0.8049684 ,  0.38818221,  0.67788781, -0.73092377, -0.79400874, -1.15547548]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random + Momentum, mse <= 0.001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[1, 2].plot(target, color="Red", label="Target"),
+axs[1, 2].plot(output, color="Blue", label="Output"),
+# axs[1, 2].set_title("Random + Mom, mse <= 0.001")
+axs[1, 2].label_outer()
+axs[1, 2].legend()
+
+# Bobot random + momentum, mse 0.0001
+weight_w = [-1.85975022, 1.19680578, -2.3275542, 0.65426197, -1.16187983, 3.92509107, 2.58700654]
+weight_v = [
+     [-0.56939112,  0.19109402,  1.82494011,  0.79071863, -1.4474192 , -4.69298743],
+     [ 0.80726792,  1.14813292,  1.2974014 , -0.58427813,  2.27706836,  0.38654978],
+     [ 1.19064849, -0.54042738, -0.73779231,  0.0569139 ,  2.36777934,  0.70518948],
+     [-0.12830535, -0.61119503,  1.13822594,  0.58096346,  0.32609625,  5.78690328],
+     [-1.44904001,  0.00914207, -3.47566659, -1.10141781, -1.18107287, -0.67474665],
+     [-0.04719416,  0.94358078, -0.79199289,  0.23809563,  0.60882268, -2.87616077],
+     [-0.29374355,  0.83069457, -0.88565051, -0.57116927,  1.36541443,  2.23770906],
+     [-1.03648342,  0.57158149,  0.50592096, -0.10404467,  2.84417309,  2.24616871],
+     [-1.12727003,  0.29866795, -0.30160321, -0.81828177, -0.96670341, -2.12378049]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Random + Momentum, mse <= 0.0001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[1, 3].plot(target, color="Red", label="Target"),
+axs[1, 3].plot(output, color="Blue", label="Output"),
+# axs[1, 3].set_title("Random + Mom, MSE <= 0.0001")
+axs[1, 3].label_outer()
+axs[1, 3].legend()
+
+# Bobot random + momentum + nguyen, mse 0.1
+weight_w = [ 0.81331451, 0.03883208, -0.3724241, -0.37919131, -0.63897157, 0.592632, -0.04084793]
+weight_v = [
+     [-0.5928963 ,  0.48269376,  0.00319774,  0.80823001,  0.3230912 ,  0.00606087],
+     [-0.24208495,  0.46413374, -0.6518203 , -0.86381312,  0.24339558, -0.94612075],
+     [ 0.67891685, -0.63595408, -0.3482523 , -0.10895959,  0.27438328, -0.40008038],
+     [-0.07499614, -0.6000773 ,  0.24055154,  0.24780078, -0.80811284,  0.94888374],
+     [-0.38283544,  0.36860721, -0.71771976, -0.91177771, -0.43947827, -0.3630053 ],
+     [ 0.10302516,  0.93938499,  0.91999416,  0.22009919, -0.77693478, -0.89647918],
+     [-0.21580994,  0.65769464, -0.39309091, -0.69433447, -0.80243552,  0.55793481],
+     [-0.9814097 ,  0.41405153,  0.59384959, -0.25495471,  0.78103021, -0.32356887],
+     [-0.37039014,  0.45932458,  0.81163654, -0.74198657,  0.5634035 ,  0.5551491 ]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Nguyen + Momentum, mse <= 0.1")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[2, 0].plot(target, color="Red", label="Target"),
+axs[2, 0].plot(output, color="Blue", label="Output"),
+# axs[2, 0].set_title("Nguyen + Mom, MSE <= 0.1")
+axs[2, 0].label_outer()
+axs[2, 0].legend()
+
+# Bobot random + momentum + nguyen, mse 0.01
+weight_w = [ 0.81331451, 0.03883208, -0.3724241, -0.37919131, -0.63897157, 0.592632, -0.04084793]
+weight_v = [
+     [-0.5928963 ,  0.48269376,  0.00319774,  0.80823001,  0.3230912 ,  0.00606087],
+     [-0.24208495,  0.46413374, -0.6518203 , -0.86381312,  0.24339558, -0.94612075],
+     [ 0.67891685, -0.63595408, -0.3482523 , -0.10895959,  0.27438328, -0.40008038],
+     [-0.07499614, -0.6000773 ,  0.24055154,  0.24780078, -0.80811284,  0.94888374],
+     [-0.38283544,  0.36860721, -0.71771976, -0.91177771, -0.43947827, -0.3630053 ],
+     [ 0.10302516,  0.93938499,  0.91999416,  0.22009919, -0.77693478, -0.89647918],
+     [-0.21580994,  0.65769464, -0.39309091, -0.69433447, -0.80243552,  0.55793481],
+     [-0.9814097 ,  0.41405153,  0.59384959, -0.25495471,  0.78103021, -0.32356887],
+     [-0.37039014,  0.45932458,  0.81163654, -0.74198657,  0.5634035 ,  0.5551491 ]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Nguyen + Momentum, mse <= 0.01")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[2, 1].plot(target, color="Red", label="Target"),
+axs[2, 1].plot(output, color="Blue", label="Output"),
+# axs[2, 1].set_title("Nguyen + Mom, MSE <= 0.01")
+axs[2, 1].label_outer()
+axs[2, 1].legend()
+
+# Bobot random + momentum + nguyen, mse 0.001
+weight_w = [-0.24408769, 0.73193676, -1.14891154, -0.34539849, -1.53375805, 2.61929448, 1.16948167]
+weight_v = [
+     [-1.284044  ,  0.40358798,  0.17012894,  1.0329513 , -1.1013298 , -1.89128288],
+     [-0.162564  ,  0.52235365, -0.49370614, -0.75912324,  0.86336706, -0.73193601],
+     [ 1.20914679, -0.47748653, -0.05044907,  0.0806391 ,  2.14530049,  0.93874284],
+     [ 0.04799906, -0.4540246 ,  0.7795078 ,  0.51862462,  0.61207745,  3.38005806],
+     [-0.55279966,  0.31180788, -0.79100513, -0.8690293 , -0.91053323, -1.28465348],
+     [ 0.25784554,  1.015759  ,  1.07003863,  0.33946402,  0.25302706, -0.67326606],
+     [-0.14823864,  0.71896006, -0.16459082, -0.54705235,  0.63573178,  1.39804585],
+     [-0.86892794,  0.49341903,  0.85834733, -0.09651435,  2.27939099,  0.86727744],
+     [-0.8108218 ,  0.34506746,  0.69854912, -0.71144615, -0.86004007, -1.16593367]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Nguyen + Momentum, mse <= 0.001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[2, 2].plot(target, color="Red", label="Target"),
+axs[2, 2].plot(output, color="Blue", label="Output"),
+# axs[2, 2].set_title("Nguyen + Mom, MSE <= 0.001")
+axs[2, 2].label_outer()
+axs[2, 2].legend()
+
+# Bobot random + momentum + nguyen, mse 0.0001
+weight_w = [-1.90061174, 1.34077818, -2.23545142, 0.73919572, -1.06372711, 3.92793383, 2.7017858 ]
+weight_v = [
+     [-0.80742823,  0.25342666,  1.9988548 ,  1.10917967, -1.42471873, -4.59396955],
+     [ 0.71610186,  1.42364846,  1.1391411 , -0.62123342,  2.32533084,  0.56670491],
+     [ 1.28255622, -0.32501269, -0.72554764, -0.01191818,  2.44512522,  0.886102  ],
+     [-0.08613408, -0.66400267,  1.12806911,  0.55236315,  0.20427525,  5.57131479],
+     [-1.35766776, -0.01024512, -3.42234889, -1.12527952, -1.15306283, -0.66384713],
+     [-0.02899581,  1.06645044, -0.89518907,  0.15869143,  0.67135067, -3.18452311],
+     [-0.30386522,  0.97069337, -0.98900355, -0.61786864,  1.43406271,  2.16249991],
+     [-1.02390923,  0.71960018,  0.46798729, -0.13468475,  2.93303044,  2.25141588],
+     [-1.1134384 ,  0.22050693, -0.24763655, -0.81506787, -1.04840286, -2.13826621]
+]
+
+for i in range(12):
+    for j in range(6):
+        jlh = 0
+        for k in range(8):
+            jlh = jlh + (df_norm[i][k] * weight_v[k+1][j])
+        net = weight_v[0][j] + jlh
+        output_hid[j] = 1 / (1 + np.exp(-net))
+
+    jlh = 0
+    for j in range(6):
+        jlh = jlh + (output_hid[j] * weight_w[j+1])
+    net = weight_w[0] + jlh
+    output[i] = 1 / (1 + np.exp(-net))
+
+    error[i] = target[i] - output[i]
+
+accuracy = np.mean(np.abs(output - target) / target <= err_tol) * 100
+print("\nHasil Training dengan Data Nguyen + Momentum, mse <= 0.0001")
+print(pd.DataFrame({
+    "Output" : output,
+    "Target" : target,
+    "Error" : output - target,
+    "Akurasi" : np.abs(output - target) / target <= err_tol
+}))
+print(f"Mean Square Error = {np.mean(error ** 2)}")
+print(f"Akurasi = {accuracy}%")
+
+axs[2, 3].plot(target, color="Red", label="Target"),
+axs[2, 3].plot(output, color="Blue", label="Output"),
+# axs[2, 3].set_title("Random + Nguyen, MSE <= 0.0001")
+axs[2, 3].label_outer()
+axs[2, 3].legend()
+
+plt.show()
